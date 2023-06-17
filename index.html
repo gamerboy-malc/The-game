@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Super Mario HTML</title>
+  <title>Sonic 3D Runner HTML</title>
   <style>
     #game-container {
       width: 800px;
@@ -16,15 +16,15 @@
       height: 50px;
       position: absolute;
       bottom: 0;
-      background-color: red;
+      background-color: blue;
     }
 
-    .goomba {
+    .robot {
       width: 50px;
       height: 50px;
       position: absolute;
       bottom: 0;
-      background-color: green;
+      background-color: red;
     }
   </style>
 </head>
@@ -36,32 +36,31 @@
   <script>
     var gameContainer = document.getElementById("game-container");
     var player = document.getElementById("player");
-    var goombas = [];
+    var robots = [];
     var intervalId;
-    var score = 0;
+    var isJumping = false;
 
-    function createGoomba() {
-      var goomba = document.createElement("div");
-      goomba.classList.add("goomba");
-      goomba.style.left = gameContainer.offsetWidth + "px";
-      goomba.style.bottom = Math.random() * 350 + "px";
-      gameContainer.appendChild(goomba);
-      goombas.push(goomba);
+    function createRobot() {
+      var robot = document.createElement("div");
+      robot.classList.add("robot");
+      robot.style.left = gameContainer.offsetWidth + "px";
+      robot.style.bottom = "0";
+      gameContainer.appendChild(robot);
+      robots.push(robot);
     }
 
-    function moveGoombas() {
-      for (var i = 0; i < goombas.length; i++) {
-        var goomba = goombas[i];
-        goomba.style.left = goomba.offsetLeft - 5 + "px";
-        if (goomba.offsetLeft + goomba.offsetWidth < 0) {
-          goomba.remove();
-          goombas.splice(i, 1);
-          score++;
+    function moveRobots() {
+      for (var i = 0; i < robots.length; i++) {
+        var robot = robots[i];
+        robot.style.left = robot.offsetLeft - 5 + "px";
+        if (robot.offsetLeft + robot.offsetWidth < 0) {
+          robot.remove();
+          robots.splice(i, 1);
           i--;
         }
-        if (isCollision(player, goomba)) {
+        if (isCollision(player, robot)) {
           clearInterval(intervalId);
-          alert("Game Over! Score: " + score);
+          alert("Game Over!");
         }
       }
     }
@@ -78,19 +77,44 @@
     }
 
     function handleKeyDown(event) {
-      if (event.key === "ArrowUp" && player.offsetTop > 0) {
-        player.style.bottom = player.offsetTop + 10 + "px";
-      } else if (event.key === "ArrowDown" && player.offsetTop < 350) {
-        player.style.bottom = player.offsetTop - 10 + "px";
+      if (event.key === "ArrowLeft" && player.offsetLeft > 0) {
+        player.style.left = player.offsetLeft - 10 + "px";
+      } else if (
+        event.key === "ArrowRight" &&
+        player.offsetLeft < gameContainer.offsetWidth - player.offsetWidth
+      ) {
+        player.style.left = player.offsetLeft + 10 + "px";
+      } else if (event.key === "ArrowUp" && !isJumping) {
+        isJumping = true;
+        jumpPlayer();
       }
+    }
+
+    function jumpPlayer() {
+      var initialBottom = player.style.bottom;
+      var jumpHeight = 150; // Adjust the jump height as needed
+      var jumpDuration = 500; // Adjust the jump duration as needed
+
+      var start = null;
+      function jump(timestamp) {
+        if (!start) start = timestamp;
+        var progress = timestamp - start;
+        var distance = (progress / jumpDuration) * jumpHeight;
+
+        player.style.bottom = initialBottom + distance + "px";
+
+        if (distance >= jumpHeight) {
+          clearInterval(jumpIntervalId);
+          isJumping = false;
+          player.style.bottom = initialBottom;
+        }
+      }
+
+      var jumpIntervalId = setInterval(function () {
+        requestAnimationFrame(jump);
+      }, 10);
     }
 
     document.addEventListener("keydown", handleKeyDown);
 
-    intervalId = setInterval(function () {
-      createGoomba();
-      moveGoombas();
-    }, 100);
-  </script>
-</body>
-</html>
+    interval
