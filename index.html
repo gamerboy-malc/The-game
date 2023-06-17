@@ -1,1 +1,47 @@
-hello how are you i am under the water pls help me wooooo
+<!DOCTYPE html>
+<html>
+<head>
+  <title>The game</title>
+  <style>
+    #game-board {
+      width: 600px;
+      height: 400px;
+      border: 10px solid rgba(183, 2, 2, 0);
+      position: relative;
+      margin: 20px auto;
+    }
+    .snake {
+      width: 20px;
+      height: 20px;
+      background-color: rgb(0, 17, 255);
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-board">
+    <div id="snake" class="snake"></div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const snake = document.getElementById("snake");
+      let snakeX = 0;
+      let snakeY = 0;
+
+      document.addEventListener("mousemove", function(event) {
+        snakeX = event.clientX - snake.offsetWidth / 2;
+        snakeY = event.clientY - snake.offsetHeight / 2;
+      });
+
+      function moveSnake() {
+        snake.style.left = snakeX + "px";
+        snake.style.top = snakeY + "px";
+        requestAnimationFrame(moveSnake);
+      }
+
+      moveSnake();
+    });
+  </script>
+</body>
+</html>
