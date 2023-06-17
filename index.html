@@ -105,4 +105,76 @@
         event.key === "ArrowDown" &&
         pacmanTop < gridHeight * 40 - 40
       ) {
-        pacman.style.top = pacmanTop
+        pacman.style.top = pacmanTop + 40 + "px";
+      } else if (event.key === "ArrowLeft" && pacmanLeft >= 40) {
+        pacman.style.left = pacmanLeft - 40 + "px";
+      } else if (
+        event.key === "ArrowRight" &&
+        pacmanLeft < gridWidth * 40 - 40
+      ) {
+        pacman.style.left = pacmanLeft + 40 + "px";
+      }
+
+      checkCollision();
+    });
+
+    // Check for collision with ghosts and food
+    function checkCollision() {
+      var pacmanRect = pacman.getBoundingClientRect();
+
+      // Check for collision with ghosts
+      for (var i = 0; i < ghosts.length; i++) {
+        var ghostRect = ghosts[i].getBoundingClientRect();
+        if (isCollision(pacmanRect, ghostRect)) {
+          gameOver();
+          return;
+        }
+      }
+
+      // Check for collision with food
+      var food = gameContainer.getElementsByClassName("food")[0];
+      var foodRect = food.getBoundingClientRect();
+      if (isCollision(pacmanRect, foodRect)) {
+        score++;
+        food.remove();
+        if (score === 10) {
+          gameWon();
+        }
+      }
+    }
+
+    // Check if two elements collide
+    function isCollision(rect1, rect2) {
+      return !(
+        rect1.top > rect2.bottom ||
+        rect1.bottom < rect2.top ||
+        rect1.right < rect2.left ||
+        rect1.left > rect2.right
+      );
+    }
+
+    // Game Over
+    function gameOver() {
+      alert("Game Over!");
+      resetGame();
+    }
+
+    // Game Won
+    function gameWon() {
+      alert("You won!");
+      resetGame();
+    }
+
+    // Reset the game
+    function resetGame() {
+      score = 0;
+      var foods = gameContainer.getElementsByClassName("food");
+      while (foods.length > 0) {
+        foods[0].remove();
+      }
+      pacman.style.top = 0 + "px";
+      pacman.style.left = 0 + "px";
+      for (var i = 0; i < ghosts.length; i++) {
+        ghosts[i].style.top =
+          Math.floor(Math.random() * gridHeight) * 40 + "px";
+        ghosts[i].style
