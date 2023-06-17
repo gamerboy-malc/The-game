@@ -117,4 +117,10 @@
 
     document.addEventListener("keydown", handleKeyDown);
 
-    interval
+    intervalId = setInterval(function () {
+      createRobot();
+      moveRobots();
+    }, 100);
+  </script>
+</body>
+</html>
