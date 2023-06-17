@@ -1,126 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Sonic 3D Runner HTML</title>
+  <title>Pac-Man HTML</title>
   <style>
     #game-container {
-      width: 800px;
+      width: 600px;
       height: 400px;
       border: 1px solid #000;
       position: relative;
       overflow: hidden;
     }
 
-    #player {
-      width: 50px;
-      height: 50px;
+    .cell {
+      width: 40px;
+      height: 40px;
       position: absolute;
-      bottom: 0;
-      background-color: blue;
+      background-color: #000;
     }
 
-    .robot {
-      width: 50px;
-      height: 50px;
+    .pacman {
+      width: 40px;
+      height: 40px;
       position: absolute;
-      bottom: 0;
+      background-color: yellow;
+      border-radius: 50%;
+    }
+
+    .ghost {
+      width: 40px;
+      height: 40px;
+      position: absolute;
       background-color: red;
+      border-radius: 50%;
+    }
+
+    .food {
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      background-color: white;
+      border-radius: 50%;
+      left: 15px;
+      top: 15px;
     }
   </style>
 </head>
 <body>
-  <div id="game-container">
-    <div id="player"></div>
-  </div>
+  <div id="game-container"></div>
 
   <script>
     var gameContainer = document.getElementById("game-container");
-    var player = document.getElementById("player");
-    var robots = [];
-    var intervalId;
-    var isJumping = false;
+    var grid = [];
+    var pacman;
+    var ghosts = [];
+    var score = 0;
 
-    function createRobot() {
-      var robot = document.createElement("div");
-      robot.classList.add("robot");
-      robot.style.left = gameContainer.offsetWidth + "px";
-      robot.style.bottom = "0";
-      gameContainer.appendChild(robot);
-      robots.push(robot);
-    }
+    var gridWidth = Math.floor(gameContainer.offsetWidth / 40);
+    var gridHeight = Math.floor(gameContainer.offsetHeight / 40);
 
-    function moveRobots() {
-      for (var i = 0; i < robots.length; i++) {
-        var robot = robots[i];
-        robot.style.left = robot.offsetLeft - 5 + "px";
-        if (robot.offsetLeft + robot.offsetWidth < 0) {
-          robot.remove();
-          robots.splice(i, 1);
-          i--;
-        }
-        if (isCollision(player, robot)) {
-          clearInterval(intervalId);
-          alert("Game Over!");
-        }
+    // Initialize the grid
+    for (var i = 0; i < gridHeight; i++) {
+      grid[i] = [];
+      for (var j = 0; j < gridWidth; j++) {
+        grid[i][j] = 0;
       }
     }
 
-    function isCollision(element1, element2) {
-      var rect1 = element1.getBoundingClientRect();
-      var rect2 = element2.getBoundingClientRect();
-      return !(
-        rect1.top > rect2.bottom ||
-        rect1.bottom < rect2.top ||
-        rect1.right < rect2.left ||
-        rect1.left > rect2.right
-      );
+    // Create the game elements
+    for (var i = 0; i < gridHeight; i++) {
+      for (var j = 0; j < gridWidth; j++) {
+        var cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.style.top = i * 40 + "px";
+        cell.style.left = j * 40 + "px";
+        gameContainer.appendChild(cell);
+      }
     }
 
-    function handleKeyDown(event) {
-      if (event.key === "ArrowLeft" && player.offsetLeft > 0) {
-        player.style.left = player.offsetLeft - 10 + "px";
+    // Create Pac-Man
+    pacman = document.createElement("div");
+    pacman.classList.add("pacman");
+    pacman.style.top = 0 + "px";
+    pacman.style.left = 0 + "px";
+    gameContainer.appendChild(pacman);
+
+    // Create Ghosts
+    for (var i = 0; i < 4; i++) {
+      var ghost = document.createElement("div");
+      ghost.classList.add("ghost");
+      ghost.style.top = Math.floor(Math.random() * gridHeight) * 40 + "px";
+      ghost.style.left = Math.floor(Math.random() * gridWidth) * 40 + "px";
+      gameContainer.appendChild(ghost);
+      ghosts.push(ghost);
+    }
+
+    // Handle key presses
+    document.addEventListener("keydown", function (event) {
+      var pacmanTop = parseInt(pacman.style.top);
+      var pacmanLeft = parseInt(pacman.style.left);
+
+      if (event.key === "ArrowUp" && pacmanTop >= 40) {
+        pacman.style.top = pacmanTop - 40 + "px";
       } else if (
-        event.key === "ArrowRight" &&
-        player.offsetLeft < gameContainer.offsetWidth - player.offsetWidth
+        event.key === "ArrowDown" &&
+        pacmanTop < gridHeight * 40 - 40
       ) {
-        player.style.left = player.offsetLeft + 10 + "px";
-      } else if (event.key === "ArrowUp" && !isJumping) {
-        isJumping = true;
-        jumpPlayer();
-      }
-    }
-
-    function jumpPlayer() {
-      var initialBottom = player.style.bottom;
-      var jumpHeight = 150; // Adjust the jump height as needed
-      var jumpDuration = 500; // Adjust the jump duration as needed
-
-      var start = null;
-      function jump(timestamp) {
-        if (!start) start = timestamp;
-        var progress = timestamp - start;
-        var distance = (progress / jumpDuration) * jumpHeight;
-
-        player.style.bottom = initialBottom + distance + "px";
-
-        if (distance >= jumpHeight) {
-          clearInterval(jumpIntervalId);
-          isJumping = false;
-          player.style.bottom = initialBottom;
-        }
-      }
-
-      var jumpIntervalId = setInterval(function () {
-        requestAnimationFrame(jump);
-      }, 10);
-    }
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    intervalId = setInterval(function () {
-      createRobot();
-      moveRobots();
-    }, 100);
-  </script>
-</body>
-</html>
+        pacman.style.top = pacmanTop
